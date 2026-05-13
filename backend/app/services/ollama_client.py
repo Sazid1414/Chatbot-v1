@@ -19,6 +19,8 @@ async def stream_chat(
     }
 
     full_response = ""
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
 
     async with httpx.AsyncClient(timeout=httpx.Timeout(300.0)) as client:
         async with client.stream("POST", url, json=payload) as response:
@@ -34,9 +36,19 @@ async def stream_chat(
                         yield json.dumps({"token": token})
 
                     if data.get("done", False):
-                        yield json.dumps({
-                            "done": True,
-                            "full_response": full_response,
-                        })
+                        pe = data.get("prompt_eval_count")
+                        ev = data.get("eval_count")
+                        if isinstance(pe, int):
+                            prompt_tokens = pe
+                        if isinstance(ev, int):
+                            completion_tokens = ev
+                        yield json.dumps(
+                            {
+                                "done": True,
+                                "full_response": full_response,
+                                "prompt_token_count": prompt_tokens,
+                                "completion_token_count": completion_tokens,
+                            }
+                        )
                 except json.JSONDecodeError:
                     continue

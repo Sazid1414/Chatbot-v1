@@ -27,11 +27,22 @@ export function useSessions(getAccessToken: () => Promise<string | null>) {
   }, [getAccessToken]);
 
   const addSession = useCallback(
-    async (title?: string, modelId?: string): Promise<Session | null> => {
+    async (
+      title?: string,
+      modelId?: string,
+      knowledgeBaseId?: string | null,
+      chatMode?: string
+    ): Promise<Session | null> => {
       const token = await getAccessToken();
       if (!token) return null;
       try {
-        const session = await createSession(token, title, modelId);
+        const session = await createSession(
+          token,
+          title,
+          modelId,
+          knowledgeBaseId,
+          chatMode
+        );
         setSessions((prev) => [session, ...prev]);
         return session;
       } catch (err) {
@@ -56,5 +67,18 @@ export function useSessions(getAccessToken: () => Promise<string | null>) {
     [getAccessToken]
   );
 
-  return { sessions, loading, loadSessions, addSession, removeSession };
+  const updateSessionLocal = useCallback((session: Session) => {
+    setSessions((prev) =>
+      prev.map((s) => (s.id === session.id ? session : s))
+    );
+  }, []);
+
+  return {
+    sessions,
+    loading,
+    loadSessions,
+    addSession,
+    removeSession,
+    updateSessionLocal,
+  };
 }

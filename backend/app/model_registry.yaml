@@ -1,0 +1,13 @@
+# Chat models: logical id -> Ollama model name
+chat_models:
+  llama3: llama3
+  llama3.2: llama3.2
+  mistral: mistral
+  gemma2: gemma2
+  phi3: phi3
+
+# When session.chat_mode is "finetuned", map model_id to Ollama tag (add your GGUF models here)
+finetuned_models: {}
+
+embedding_model: nomic-embed-text
+embedding_dimensions: 768
