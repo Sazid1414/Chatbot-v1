@@ -49,6 +49,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
           className="max-h-[200px] min-h-[44px] flex-1 resize-none rounded-xl border border-gray-700 bg-gray-900 px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
         />
         <button
+          type="button"
           onClick={handleSubmit}
           disabled={disabled || !input.trim()}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white transition-colors hover:bg-blue-500 disabled:opacity-40 disabled:hover:bg-blue-600"

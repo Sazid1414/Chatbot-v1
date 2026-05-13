@@ -1,8 +1,12 @@
 import type { Session, Message } from "@/types";
+import { isAuthDisabled } from "@/lib/authMode";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 async function getAuthHeaders(accessToken: string): Promise<HeadersInit> {
+  if (isAuthDisabled()) {
+    return { "Content-Type": "application/json" };
+  }
   return {
     "Content-Type": "application/json",
     Authorization: `Bearer ${accessToken}`,
@@ -58,12 +62,15 @@ export function chatStream(
   sessionId: string,
   message: string
 ): { response: Promise<Response> } {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (!isAuthDisabled()) {
+    headers.Authorization = `Bearer ${accessToken}`;
+  }
   const response = fetch(`${API_URL}/api/chat`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
+    headers,
     body: JSON.stringify({ session_id: sessionId, message }),
   });
 

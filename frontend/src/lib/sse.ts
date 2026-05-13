@@ -14,6 +14,7 @@ export async function* parseSSEStream(
     if (done) break;
 
     buffer += decoder.decode(value, { stream: true });
+    buffer = buffer.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
     const lines = buffer.split("\n");
     buffer = lines.pop() || "";
 
@@ -34,9 +35,9 @@ export async function* parseSSEStream(
   }
 
   if (buffer.trim()) {
-    const trimmed = buffer.trim();
-    if (trimmed.startsWith("data:")) {
-      const jsonStr = trimmed.slice(5).trim();
+    const normalized = buffer.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+    if (normalized.startsWith("data:")) {
+      const jsonStr = normalized.slice(5).trim();
       if (jsonStr && jsonStr !== "[DONE]") {
         try {
           yield JSON.parse(jsonStr);

@@ -12,6 +12,18 @@ LLM Chatbot powered by **Ollama** (local inference), **FastAPI** (backend), **Ne
 | Database | Supabase Postgres        | Sessions, messages (with RLS)          |
 | LLM      | Ollama                   | Local model inference (Llama 3, etc.)  |
 
+## Docker (full stack)
+
+To run Postgres, auth (GoTrue), PostgREST, Ollama, the API, and the UI in containers, see **[DOCKER.md](./DOCKER.md)**. Quick version:
+
+```powershell
+Copy-Item .env.docker.example .env.docker
+docker compose --env-file .env.docker up -d --build
+docker compose --env-file .env.docker exec ollama ollama pull llama3
+```
+
+Then open http://localhost:3000 .
+
 ## Prerequisites
 
 - **Python 3.11+**

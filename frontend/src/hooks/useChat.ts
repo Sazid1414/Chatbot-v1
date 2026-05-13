@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
+import { flushSync } from "react-dom";
 import type { Message } from "@/types";
 import { fetchMessages, chatStream } from "@/lib/api";
 import { parseSSEStream } from "@/lib/sse";
@@ -9,7 +10,6 @@ export function useChat(getAccessToken: () => Promise<string | null>) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [streaming, setStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
-  const abortRef = useRef<AbortController | null>(null);
 
   const loadMessages = useCallback(
     async (sessionId: string) => {
@@ -17,7 +17,7 @@ export function useChat(getAccessToken: () => Promise<string | null>) {
       if (!token) return;
       try {
         const data = await fetchMessages(token, sessionId);
-        setMessages(data);
+        setMessages(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to load messages:", err);
       }
@@ -38,10 +38,11 @@ export function useChat(getAccessToken: () => Promise<string | null>) {
         token_count: null,
         created_at: new Date().toISOString(),
       };
-      setMessages((prev) => [...prev, userMessage]);
-
-      setStreaming(true);
-      setStreamingContent("");
+      flushSync(() => {
+        setMessages((prev) => [...prev, userMessage]);
+        setStreaming(true);
+        setStreamingContent("");
+      });
 
       try {
         const { response: responsePromise } = chatStream(
@@ -65,6 +66,13 @@ export function useChat(getAccessToken: () => Promise<string | null>) {
             setStreamingContent(fullContent);
           }
           if (chunk.done) {
+            if (
+              typeof chunk.full_response === "string" &&
+              chunk.full_response.length > fullContent.length
+            ) {
+              fullContent = chunk.full_response;
+              setStreamingContent(fullContent);
+            }
             break;
           }
         }
@@ -80,11 +88,14 @@ export function useChat(getAccessToken: () => Promise<string | null>) {
         setMessages((prev) => [...prev, assistantMessage]);
       } catch (err) {
         console.error("Chat error:", err);
+        const detail =
+          err instanceof Error ? err.message : "Sorry, something went wrong.";
         const errorMessage: Message = {
           id: crypto.randomUUID(),
           session_id: sessionId,
           role: "assistant",
-          content: "Sorry, something went wrong. Please try again.",
+          content:
+            detail.length > 500 ? `${detail.slice(0, 500)}…` : detail,
           token_count: null,
           created_at: new Date().toISOString(),
         };

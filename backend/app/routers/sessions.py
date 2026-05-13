@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.dependencies import get_current_user
@@ -29,13 +31,14 @@ async def create_session(
     from app.config import get_settings
     settings = get_settings()
 
+    now = datetime.now(timezone.utc).isoformat()
     result = (
         db.table("sessions")
         .insert({
             "user_id": user_id,
             "title": body.title,
             "model_id": body.model_id or settings.default_model,
-            "last_active_at": "now()",
+            "last_active_at": now,
         })
         .execute()
     )

@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     supabase_url: str = ""
     supabase_service_key: str = ""
     supabase_jwt_secret: str = ""
+    auth_disabled: bool = False
+    demo_user_id: str = "00000000-0000-4000-8000-000000000001"
     ollama_base_url: str = "http://localhost:11434"
     default_model: str = "llama3"
     system_prompt: str = "You are a helpful assistant."

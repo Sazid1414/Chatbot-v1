@@ -20,4 +20,5 @@ export interface ChatStreamToken {
   token?: string;
   done?: boolean;
   error?: string;
+  full_response?: string;
 }

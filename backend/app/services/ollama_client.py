@@ -22,7 +22,11 @@ async def stream_chat(
 
     async with httpx.AsyncClient(timeout=httpx.Timeout(300.0)) as client:
         async with client.stream("POST", url, json=payload) as response:
-            response.raise_for_status()
+            if response.status_code != 200:
+                body = (await response.aread()).decode(errors="replace")[:2000]
+                raise RuntimeError(
+                    f"Ollama HTTP {response.status_code} at {url!r}: {body}"
+                )
             async for line in response.aiter_lines():
                 if not line:
                     continue

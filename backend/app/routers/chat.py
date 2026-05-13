@@ -49,7 +49,11 @@ async def chat(
                 data = json.loads(chunk)
                 if data.get("done"):
                     full_response = data.get("full_response", full_response)
-                    yield {"data": json.dumps({"done": True})}
+                    yield {
+                        "data": json.dumps(
+                            {"done": True, "full_response": full_response}
+                        )
+                    }
                 else:
                     token = data.get("token", "")
                     full_response += token

@@ -21,7 +21,9 @@ export default function MessageFeed({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streamingContent]);
 
-  if (messages.length === 0 && !streaming) {
+  const showEmptyHero = messages.length === 0 && !streaming;
+
+  if (showEmptyHero) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 text-gray-500">
         <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>

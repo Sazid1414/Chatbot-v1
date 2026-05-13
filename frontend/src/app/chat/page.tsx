@@ -10,6 +10,7 @@ import ModelSelector from "@/components/ModelSelector";
 import { useAuth } from "@/hooks/useAuth";
 import { useSessions } from "@/hooks/useSessions";
 import { useChat } from "@/hooks/useChat";
+import { isAuthDisabled } from "@/lib/authMode";
 
 function ChatContent() {
   const { signOut, getAccessToken } = useAuth();
@@ -85,7 +86,7 @@ function ChatContent() {
 
   const handleSignOut = useCallback(async () => {
     await signOut();
-    router.push("/login");
+    router.push(isAuthDisabled() ? "/chat" : "/login");
   }, [signOut, router]);
 
   return (

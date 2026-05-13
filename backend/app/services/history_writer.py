@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from app.db.supabase import get_supabase
 
 
@@ -24,7 +26,7 @@ async def save_message(
 async def update_session_activity(session_id: str) -> None:
     db = get_supabase()
     db.table("sessions").update(
-        {"last_active_at": "now()"}
+        {"last_active_at": datetime.now(timezone.utc).isoformat()}
     ).eq("id", session_id).execute()
 
 

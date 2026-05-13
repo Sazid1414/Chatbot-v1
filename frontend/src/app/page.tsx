@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { isAuthDisabled } from "@/lib/authMode";
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -10,6 +11,10 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading) {
+      if (isAuthDisabled()) {
+        router.replace("/chat");
+        return;
+      }
       router.replace(user ? "/chat" : "/login");
     }
   }, [user, loading, router]);
